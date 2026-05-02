@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Analyzer & Finder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-gray-100 text-gray-800 font-sans p-4 sm:p-6 lg:p-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">
+                Image Analyzer & Finder
+            </h1>
+            <p class="mt-2 text-lg text-gray-600">
+                Let Gemini describe your image and find similar ones across the web.
+            </p>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Column: Upload & Actions -->
+            <div class="flex flex-col space-y-4">
+                <!-- Upload Component -->
+                <div class="w-full">
+                    <input type="file" id="file-input" class="hidden" accept="image/png, image/jpeg, image/webp">
+                    <div id="drop-area" class="w-full aspect-video bg-white border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center relative overflow-hidden shadow-sm hover:border-indigo-500 transition-colors cursor-pointer">
+                        
+                        <!-- Preview (Hidden by default) -->
+                        <div id="preview-container" class="hidden absolute inset-0 w-full h-full bg-white z-10">
+                            <img id="image-preview" src="" alt="Preview" class="w-full h-full object-contain">
+                            <button id="clear-btn" class="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-2 transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-red-500" aria-label="Clear image">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Placeholder -->
+                        <div id="upload-placeholder" class="text-center">
+                            <button id="upload-trigger-btn" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-indigo-500 transition-all duration-200 pointer-events-none">
+                                Upload an Image
+                            </button>
+                            <p class="mt-2 text-sm text-gray-500">PNG, JPG, or WEBP</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analyze Button -->
+                <button id="analyze-btn" disabled class="w-full py-3 px-6 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500 transition-all duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500">
+                    Analyze Image
+                </button>
+            </div>
+
+            <!-- Right Column: Results -->
+            <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm min-h-[300px] flex items-center justify-center relative">
+                
+                <!-- Initial IDLE State -->
+                <div id="result-idle" class="text-center text-gray-500">
+                    <p>Upload an image and click "Analyze Image" to see the magic happen.</p>
+                </div>
+
+                <!-- Loading State (Hidden) -->
+                <div id="result-loading" class="hidden flex flex-col items-center justify-center space-y-4">
+                     <div class="w-12 h-12 border-4 border-t-indigo-500 border-gray-200 rounded-full animate-spin"></div>
+                     <p class="text-lg text-gray-600">Analyzing image...</p>
+                </div>
+
+                <!-- Error State (Hidden) -->
+                <div id="result-error" class="hidden w-full">
+                     <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg" role="alert">
+                        <strong class="font-bold">Error:</strong>
+                        <span id="error-message" class="block sm:inline"></span>
+                    </div>
+                </div>
+
+                <!-- Success Content (Hidden) -->
+                <div id="result-content" class="hidden w-full space-y-6 animate-fade-in self-start">
+                    <!-- Description -->
+                    <div class="w-full">
+                         <h2 class="text-2xl font-bold text-indigo-600 mb-3">Description</h2>
+                         <p id="result-description" class="text-gray-700 leading-relaxed bg-gray-100 p-4 rounded-lg whitespace-pre-line"></p>
+                    </div>
+
+                    <!-- Similar Images -->
+                    <div id="similar-images-container" class="w-full hidden">
+                        <h2 class="text-2xl font-bold text-indigo-600 mb-3">Similar Images on the Web</h2>
+                         <ul id="similar-images-list" class="divide-y divide-gray-200 bg-gray-100 p-4 rounded-lg max-h-96 overflow-y-auto">
+                             <!-- Items injected here -->
+                         </ul>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
